@@ -1,10 +1,13 @@
 # CrcFinder
+
 A tool to find well known crc params that matches the input data and crc result (right or wrong)
 
 ## Usage
 
 ### As Library
+
 #### find `zlib.crc32`
+
 ```python
 from crcFinder import CrcFinder
 import zlib
@@ -18,6 +21,7 @@ print([str(i) for i in r])
 ```
 
 #### find something else
+
 ```python
 from crcFinder import CrcFinder
 data = []
@@ -35,3 +39,8 @@ from crcFinder import CrcCalculator, ShiftType
 crc_pkzip = CrcCalculator(32, 0x04c11db7, 0xffffffff, True, True, 0xffffffff, ShiftType.LEFT, ShiftType.LEFT)
 assert(crc_pkzip.check() == 0xcbf43926)
 ```
+
+## Reference
+
+- <https://reveng.sourceforge.io/crc-catalogue/all.htm>
+- <https://github.com/Michaelangel007/crc32>
