@@ -40,6 +40,13 @@ crc_pkzip = CrcCalculator(32, 0x04c11db7, 0xffffffff, True, True, 0xffffffff, Sh
 assert(crc_pkzip.check() == 0xcbf43926)
 ```
 
+### cli
+
+```bash
+python3 -m crcFinder -d 616263646566,4b8e39ef
+python3 -m crcFinder -d 616263646566,0x4b8e39ef 313233343536373839,0xcbf43926
+```
+
 ## Reference
 
 - <https://reveng.sourceforge.io/crc-catalogue/all.htm>
