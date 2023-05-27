@@ -160,7 +160,7 @@ class CrcFinder:
         if type(crc) == bytes:
             crc = int(crc.hex(), 16)
         result = calculator(data)
-        if "result_is_le" in calculator.extra:
+        if calculator.extra and "result_is_le" in calculator.extra:
             hex_width = 2 * int((calculator.width + 7) / 8)
             crc_le = int(
                 (
