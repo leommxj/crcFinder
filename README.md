@@ -2,6 +2,12 @@
 
 A tool to find well known crc params that matches the input data and crc result (right or wrong)
 
+## Install
+
+```bash
+pip install crcFinder
+```
+
 ## Usage
 
 ### As Library
