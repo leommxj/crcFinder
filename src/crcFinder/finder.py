@@ -194,5 +194,5 @@ class CrcFinder:
                     if self.verifyWithCalculator(data, crc, calculator) is not None
                 ]
             if len(r) == 0:
-                return None
+                return []
         return r

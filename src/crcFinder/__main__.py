@@ -19,7 +19,7 @@ def main():
             raise ValueError('data and crc format not right')
     f = CrcFinder()
     r = f.findCrc(input)
-    if r is not None:
+    if len(r) > 0:
         print([str(i) for i in r])
     else:
         print("no luck")
