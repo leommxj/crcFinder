@@ -12,7 +12,7 @@ class WellKnownCrcParams:
     poly: int
     init: int = 0
     xorOut: int = 0
-    name: str = None
+    name: str|list|None = None
 
 
 class CrcFinder:
@@ -59,6 +59,7 @@ class CrcFinder:
         WellKnownCrcParams(32, 0x814141AB),
         WellKnownCrcParams(32, 0xF4ACFB13),
         WellKnownCrcParams(32, 0xA833982B),
+        WellKnownCrcParams(32, 0x9132becd, name='Tenda'),
         WellKnownCrcParams(
             40,
             0x0004820009,
@@ -108,6 +109,7 @@ class CrcFinder:
                 brute_things[3],
                 brute_things[4],
                 brute_things[5],
+                params.name
             )
             if result:
                 r.append(result)
@@ -134,9 +136,10 @@ class CrcFinder:
         xorOut: int,
         tableGenShiftType: ShiftType,
         calcShiftType: ShiftType,
+        name: str|list|None
     ):
         calculator = CrcCalculator(
-            width, poly, init, refIn, refOut, xorOut, tableGenShiftType, calcShiftType
+            width, poly, init, refIn, refOut, xorOut, tableGenShiftType, calcShiftType, name
         )
         result = calculator(data)
         hex_width = 2 * int((width + 7) / 8)
