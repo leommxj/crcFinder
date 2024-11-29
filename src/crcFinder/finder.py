@@ -138,12 +138,16 @@ class CrcFinder:
         calcShiftType: ShiftType,
         name: str|list|None
     ):
+        mask = (1 << width) - 1
+        crc_masked = crc & mask
+        if crc_masked != crc:
+            return None
+
         calculator = CrcCalculator(
             width, poly, init, refIn, refOut, xorOut, tableGenShiftType, calcShiftType, name
         )
         result = calculator(data)
         hex_width = 2 * int((width + 7) / 8)
-        # mask = (1 << width) - 1
         crc_le = int(
             (
                 bytes.fromhex("{:0{hex_width}x}".format(crc, hex_width=hex_width))[::-1]
