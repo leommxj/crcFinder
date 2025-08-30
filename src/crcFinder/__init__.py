@@ -11,11 +11,16 @@ from .finder import (
     WellKnownCrcParams
 )
 
+from .solver import (
+    Solver,
+)
+
 __all__ = [
     "CrcCalculator",
     "ShiftType",
     "WrongCalcShiftType",
     "WrongTableGenShiftType",
     "CrcFinder",
-    "WellKnownCrcParams"
+    "WellKnownCrcParams",
+    "Solver"
 ]

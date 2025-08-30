@@ -42,6 +42,14 @@ class CrcCalculator():
         logging.debug("table: {}".format(self.table))
         self.reflectBits = self._instance_reflectBits
 
+    def _apply_refin(self, data: bytes) -> bytes:
+        if not self.refIn:
+            return data
+        d = []
+        for b in data:
+            d.append(int('{:08b}'.format(b)[::-1], 2))
+        return bytes(d)
+
     @staticmethod
     def reflectBits(n: int, width: int) -> int:
         return int('{:0{width}b}'.format(n, width=width)[::-1], 2)
@@ -59,6 +67,22 @@ class CrcCalculator():
 
     def calcLeft(self, data: bytes):
         crc = self.init
+        for b in data:
+            index = (crc >> (self.width - 8)) ^ b
+            crc = (crc << 8) & self.mask
+            crc ^= self.table[index]
+        return crc
+
+    def _advanceRight(self, state: int, data: bytes) -> int:
+        crc = state
+        for b in data:
+            index = (crc ^ b) & 0xFF
+            crc = crc >> 8
+            crc ^= self.table[index]
+        return crc
+
+    def _advanceLeft(self, state: int, data: bytes) -> int:
+        crc = state
         for b in data:
             index = (crc >> (self.width - 8)) ^ b
             crc = (crc << 8) & self.mask
@@ -94,15 +118,43 @@ class CrcCalculator():
     def calculate(self, data: bytes) -> int:
         logging.debug("input data: {}".format(data))
         if self.refIn:
-            d = []
-            for b in data:
-                d.append(int('{:08b}'.format(b)[::-1], 2))
-            data = bytes(d)
+            data = self._apply_refin(data)
             logging.debug("input data after reflected: {}".format(data))
 
         crc = self.calc(data)
         logging.debug("crc result: {:x}".format(crc))
 
+        if self.refOut:
+            crc = self.reflectBits(crc)
+        return crc ^ self.xorOut
+
+    def calculate_raw(self, data: bytes) -> int:
+        """
+        计算未应用 refOut/xorOut 的内部寄存器状态（从 init 出发）。
+        """
+        if self.refIn:
+            data = self._apply_refin(data)
+        if self.calcShiftType == ShiftType.RIGHT:
+            return self._advanceRight(self.init, data)
+        else:
+            return self._advanceLeft(self.init, data)
+
+    def advance_raw(self, state: int, data: bytes) -> int:
+        """
+        从给定内部状态继续处理更多字节，返回新的内部状态（未应用 refOut/xorOut）。
+        """
+        if self.refIn:
+            data = self._apply_refin(data)
+        if self.calcShiftType == ShiftType.RIGHT:
+            return self._advanceRight(state, data)
+        else:
+            return self._advanceLeft(state, data)
+
+    def finalize_raw(self, state: int) -> int:
+        """
+        将内部状态应用 refOut/xorOut，得到对外可见的 CRC 值。
+        """
+        crc = state
         if self.refOut:
             crc = self.reflectBits(crc)
         return crc ^ self.xorOut
@@ -120,7 +172,7 @@ class CrcCalculator():
             self.extra += ',' + s
 
     def __str__(self):
-        return "width={self.width:} poly=0x{self.poly:0{hex_width}x} init=0x{self.init:0{hex_width}x} refin={self.refIn} refout={self.refOut} xorout=0x{self.xorOut:0{hex_width}x} check=0x{check:0{hex_width}x} name={self.name} tableGenShiftType:{self.tableGenShiftType} calcShiftType:{self.calcShiftType} extra=`{self.extra}`".format(self=self, hex_width=2*int((self.width+7)/8), check=self.check())
+        return "width={self.width:} poly=0x{self.poly:0{hex_width}x} init=0x{self.init:0{hex_width}x} refin={self.refIn} refout={self.refOut} xorout=0x{self.xorOut:0{hex_width}x} check=0x{check:0{hex_width}x} name={self.name} tableGenShiftType:{self.tableGenShiftType} calcShiftType:{self.calcShiftType} extra={self.extra}".format(self=self, hex_width=2*int((self.width+7)/8), check=self.check())
     
     def __eq__(self, other):
         if str(self) == str(other):
