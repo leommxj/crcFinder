@@ -46,11 +46,19 @@ crc_pkzip = CrcCalculator(32, 0x04c11db7, 0xffffffff, True, True, 0xffffffff, Sh
 assert(crc_pkzip.check() == 0xcbf43926)
 ```
 
+#### Solver
+see `tests/test_Solver.py`
+
 ### cli
 
 ```bash
-python3 -m crcFinder -d 616263646566,4b8e39ef
-python3 -m crcFinder -d 616263646566,0x4b8e39ef 313233343536373839,0xcbf43926
+# find crc poly and other params
+python -m crcFinder find -d 616263646566,4b8e39ef
+python -m crcFinder find -d 616263646566,0x4b8e39ef 313233343536373839,0xcbf43926
+# calculate data crc
+python -m crcFinder calculate --params "width=32 poly=0x04c11db7 init=0xffffffff refin=True refout=True xorout=0xffffffff check=0xcbf43926 name=None tableGenShiftType:ShiftType.LEFT calcShiftType:ShiftType.LEFT extra=None" -d 313233343536373839
+# generate a padding to data for specified crc checksum value
+python -m crcFinder solve --params "width=32 poly=0x04c11db7 init=0xffffffff refin=True refout=True xorout=0xffffffff check=0xcbf43926 name=None tableGenShiftType:ShiftType.LEFT calcShiftType:ShiftType.LEFT extra=None" --data 68656c6c6f --target 0x12345678
 ```
 
 ## Reference
